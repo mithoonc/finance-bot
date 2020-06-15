@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en-US">
   <head>
-    <title>Web Chat: Browser-supported speech</title>
+    <title>Web Chat: Full-featured bundle with ES5 polyfills and Direct Line Speech channel</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script crossorigin="anonymous" src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"></script>
+    <script crossorigin="anonymous" src="https://cdn.botframework.com/botframework-webchat/latest/webchat-es5.js"></script>
     <style>
       html,
       body {
@@ -23,19 +23,27 @@
   <body>
     <div id="webchat" role="main"></div>
     <script>
-      (async function() {
-        const res = await fetch('https://finance-chatbot.azurewebsites.net/directline/token', { method: 'POST' });
-        const { token } = await res.json();
-        window.WebChat.renderWebChat(
-          {
-            directLine: window.WebChat.createDirectLine({ token }),
-            webSpeechPonyfillFactory: window.WebChat.createBrowserWebSpeechPonyfillFactory()
-          },
-          document.getElementById('webchat')
-        );
+      const fetchCredentials = function() {
+        return window
+          .fetch('https://finance-chatbot.azurewebsites.net/speechservices/token', {
+            method: 'POST'
+          })
+          .then(function(res) {
+            return res.json();
+          })
+          .then(function(json) {
+            return {
+              authorizationToken: json.token,
+              region: json.region
+            };
+          });
+      };
+
+      window.WebChat.createDirectLineSpeechAdapters({ fetchCredentials: fetchCredentials }).then(function(adapters) {
+        window.WebChat.renderWebChat(Object.assign({}, adapters), document.getElementById('webchat'));
 
         document.querySelector('#webchat > *').focus();
-      })().catch(err => console.error(err));
+      });
     </script>
   </body>
 </html>
