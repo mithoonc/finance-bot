@@ -24,7 +24,7 @@
     <div id="webchat" role="main"></div>
     <script>
       (async function() {
-        const res = await fetch('https://cors-anywhere.herokuapp.com/https://finance-chatbot.azurewebsites.net/directline/token', { method: 'POST' });
+        const res = await fetch('https://finance-chatbot.azurewebsites.net/directline/token', { method: 'POST' });
         const { token } = await res.json();
         window.WebChat.renderWebChat(
           {
