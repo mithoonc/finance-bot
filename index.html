@@ -32,7 +32,7 @@
 
           if (now > expireAfter) {
             expireAfter = now + 300000;
-            lastPromise = fetch(`https://cors-anywhere.herokuapp.com/https://cors-anywhere.herokuapp.com/https://eastus.api.cognitive.microsoft.com/sts/v1.0/issuetoken`, {
+            lastPromise = fetch(`https://cors-anywhere.herokuapp.com/https://eastus.api.cognitive.microsoft.com/sts/v1.0/issuetoken`, {
             headers: { 'Ocp-Apim-Subscription-Key': '03fd4585442d4beca0ee732fc7715438' },
             method: 'POST'
           }).then(
@@ -53,7 +53,7 @@
 
       (async function() {
 
-        const res = await fetch(`https://cors-anywhere.herokuapp.com/https://finance-chatbot.azurewebsites.net/v3/directline/tokens/generate`, {
+        const res = await fetch(`https://directline.botframework.com/v3/directline/tokens/generate`, {
                       body: JSON.stringify({ User: { Id: 'mithoon' } }),
                       headers: {
                         authorization: `Bearer Wr1AZjChyuY.Vd4UcmSYYaWn6Iq6FjfwFS89Dl0SWjUX-S6GKehaZjs`,
