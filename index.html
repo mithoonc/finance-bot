@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en-US">
   <head>
-    <title>Web Chat: Full-featured bundle with ES5 polyfills and Direct Line Speech channel</title>
+    <title>Web Chat: Cognitive Services Speech Services using JavaScript</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script crossorigin="anonymous" src="https://cdn.botframework.com/botframework-webchat/latest/webchat-es5.js"></script>
+    <script crossorigin="anonymous" src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"></script>
     <style>
       html,
       body {
@@ -23,27 +23,60 @@
   <body>
     <div id="webchat" role="main"></div>
     <script>
-      const fetchCredentials = function() {
-        return window
-          .fetch('https://finance-chatbot.azurewebsites.net/speechservices/token', {
-            method: 'POST'
-          })
-          .then(function(res) {
-            return res.json();
-          })
-          .then(function(json) {
-            return {
-              authorizationToken: json.token,
-              region: json.region
-            };
-          });
-      };
+      function createFetchSpeechServicesCredentials() {
+        let expireAfter = 0;
+        let lastPromise;
 
-      window.WebChat.createDirectLineSpeechAdapters({ fetchCredentials: fetchCredentials }).then(function(adapters) {
-        window.WebChat.renderWebChat(Object.assign({}, adapters), document.getElementById('webchat'));
+        return () => {
+          const now = Date.now();
+
+          if (now > expireAfter) {
+            expireAfter = now + 300000;
+            lastPromise = fetch(`https://eastus.api.cognitive.microsoft.com/sts/v1.0/issuetoken`, {
+            headers: { 'Ocp-Apim-Subscription-Key': '03fd4585442d4beca0ee732fc7715438' },
+            method: 'POST'
+          }).then(
+              res => res.json(),
+              err => {
+                expireAfter = 0;
+
+                return Promise.reject(err);
+              }
+            );
+          }
+
+          return lastPromise;
+        };
+      }
+
+      const fetchSpeechServicesCredentials = createFetchSpeechServicesCredentials();
+
+      (async function() {
+
+        const res = await fetch(`https://finance-chatbot.azurewebsites.net/v3/directline/tokens/generate`, {
+                      body: JSON.stringify({ User: { Id: 'mithoon' } }),
+                      headers: {
+                        authorization: `Bearer Wr1AZjChyuY.Vd4UcmSYYaWn6Iq6FjfwFS89Dl0SWjUX-S6GKehaZjs`,
+                        'Content-Type': 'application/json'
+                      },
+                      method: 'POST'
+                    });
+        const { token } = await res.json();
+
+        const webSpeechPonyfillFactory = await window.WebChat.createCognitiveServicesSpeechServicesPonyfillFactory({
+          credentials: fetchSpeechServicesCredentials
+        });
+
+        window.WebChat.renderWebChat(
+          {
+            directLine: window.WebChat.createDirectLine({ token }),
+            webSpeechPonyfillFactory
+          },
+          document.getElementById('webchat')
+        );
 
         document.querySelector('#webchat > *').focus();
-      });
+      })().catch(err => console.error(err));
     </script>
   </body>
 </html>
