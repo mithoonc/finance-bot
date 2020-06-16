@@ -32,8 +32,8 @@
 
           if (now > expireAfter) {
             expireAfter = now + 300000;
-            lastPromise = fetch(`https://eastus.api.cognitive.microsoft.com/sts/v1.0/issuetoken`, {
-            headers: { 'Ocp-Apim-Subscription-Key': '03fd4585442d4beca0ee732fc7715438', 'Access-Control-Allow-Origin': '*' },
+            lastPromise = fetch(`https://cors-anywhere.herokuapp.com/https://eastus.api.cognitive.microsoft.com/sts/v1.0/issuetoken`, {
+            headers: { 'Ocp-Apim-Subscription-Key': '03fd4585442d4beca0ee732fc7715438' },
             method: 'POST'
           }).then(
               res => res.json(),
